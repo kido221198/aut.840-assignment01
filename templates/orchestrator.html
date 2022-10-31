@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="../static/styles.css">
+    <script>
+        <!--
+        function timedRefresh(timeoutPeriod) {
+            setTimeout("location.reload(true);", timeoutPeriod);
+        }
+
+        window.onload = timedRefresh(15000);
+        -->
+    </script>
+    <style>
+        {
+            box-sizing: border-box
+        ;
+        }
+        /* Set additional styling options for the columns*/
+        .column {
+            float: left;
+            width: 50%;
+        }
+
+        .row:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        .row {
+            background-image: url("tampere_symbol.png");
+            background-color: #ffffff;
+            height: 500px;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: 100px;
+            opacity: 0.8;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        h3{
+            text-align: center;
+        }
+
+    </style>
+    <title>FAST-Lab</title>
+</head>
+<body>
+<h1>Welcome to FAST-Lab Workstation #{{ ws_id }}</h1> <!-- insert category here -->
+<h3>IP Conveyor: {{ ip_conveyor }} | IP Robot: {{ ip_robot }}</h3>
+<div class="row">
+    <div class="column">
+        <h2>New Order</h2>
+        <form action="/" method="POST">
+            {{ form.hidden_tag() }}
+            <table>
+                <tbody>
+                <tr>
+                    <td>{{ form.frame.label }}</td>
+                    {% for btn in form.frame %}
+                        <td>{{ btn }}</td>
+                        <td>{{ btn.label }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td>{{ form.f_color.label }}</td>
+                    {% for btn in form.f_color %}
+                        <td>{{ btn }}</td>
+                        <td>{{ btn.label }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td>{{ form.screen.label }}</td>
+                    {% for btn in form.screen %}
+                        <td>{{ btn }}</td>
+                        <td>{{ btn.label }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td>{{ form.s_color.label }}</td>
+                    {% for btn in form.s_color %}
+                        <td>{{ btn }}</td>
+                        <td>{{ btn.label }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td>{{ form.keyboard.label }}</td>
+                    {% for btn in form.keyboard %}
+                        <td>{{ btn }}</td>
+                        <td>{{ btn.label }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td>{{ form.k_color.label }}</td>
+                    {% for btn in form.k_color %}
+                        <td>{{ btn }}</td>
+                        <td>{{ btn.label }}</td>
+                    {% endfor %}
+                </tr>
+                </tbody>
+            </table>
+
+            <a>{{ form.submit() }}</a>
+            <a href="{{ url_for('random_order', _scheme='HTTP', _external=True) }}">I'm feeling lucky</a>
+        </form>
+
+        <h2>Order History</h2>
+        <table>
+            <tbody>
+            <tr>
+                <td>Frame shape</td>
+                <td>Frame color</td>
+                <td>Screen shape</td>
+                <td>Screen color</td>
+                <td>Keyboard shape</td>
+                <td>Keyboard color</td>
+                <td>Status</td>
+            </tr>
+            {% for order in completed_orders %}
+                <tr>
+                    <td>{{ order['frame_id']|int }}</td>
+                    <td>{{ order['f_color'] }}</td>
+                    <td>{{ order['screen_id']|int }}</td>
+                    <td>{{ order['s_color'] }}</td>
+                    <td>{{ order['keyboard_id']|int }}</td>
+                    <td>{{ order['k_color'] }}</td>
+                    <td>Completed</td>
+                </tr>
+            {% endfor %}
+            {% for pallet, order in processing_orders.items() %}
+                <tr>
+                    {% if order %}
+                        <td>{{ order['frame_id']|int }}</td>
+                        <td>{{ order['f_color'] }}</td>
+                        <td>{{ order['screen_id']|int }}</td>
+                        <td>{{ order['s_color'] }}</td>
+                        <td>{{ order['keyboard_id']|int }}</td>
+                        <td>{{ order['k_color'] }}</td>
+                        {% if order['complete'] > 0 %}
+                            <td>Drawing</td>
+                        {% else %}
+                            <td>Waiting</td>
+                        {% endif %}
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            {% for order in pending_orders %}
+                <tr>
+                    <td>{{ order['frame_id']|int }}</td>
+                    <td>{{ order['f_color'] }}</td>
+                    <td>{{ order['screen_id']|int }}</td>
+                    <td>{{ order['s_color'] }}</td>
+                    <td>{{ order['keyboard_id']|int }}</td>
+                    <td>{{ order['k_color'] }}</td>
+                    <td>Pending</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+
+    </div>
+    <div class="column">
+        <h2>List of Zone</h2>
+        <table>
+            <colgroup>
+                <col style="width: 5%">
+                <col style="width: 45%">
+                <col style="width: 25%">
+                <col style="width: 25%">
+            </colgroup>
+            <tbody class="loctable">
+            <tr>
+                <td class="loc">#</td> <!-- insert location name here -->
+                <td class="desc">Pallet</td> <!-- insert location description here -->
+                <td class="desc">Action 1</td>
+                <td class="btns">Action 2</td>
+            </tr>
+            <tr>
+                <td class="loc">1</td> <!-- insert location name here -->
+                <td class="desc">{{ zones['1'] }}</td> <!-- insert location description here -->
+                <td class="btns">
+                    <a href="{{ url_for('transfer', two_digits=12, _scheme='HTTP' , _external=True) }}">TransferZone12</a>
+                </td>
+                <td class="btns">
+                    <a href="{{ url_for('transfer', two_digits=14, _scheme='HTTP' , _external=True) }}">TransferZone14</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="loc">2</td> <!-- insert location name here -->
+                <td class="desc">{{ zones['2'] }}</td> <!-- insert location description here -->
+                <td class="btns">
+                    <a href="{{ url_for('transfer', two_digits=23, _scheme='HTTP' , _external=True) }}">TransferZone23</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="loc">3</td> <!-- insert location name here -->
+                <td class="desc">{{ zones['3'] }}</td> <!-- insert location description here -->
+                <td class="btns">
+                    <a href="{{ url_for('transfer', two_digits=35, _scheme='HTTP' , _external=True) }}">TransferZone35</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="loc">4</td> <!-- insert location name here -->
+                <td class="desc">{{ zones['4'] }}</td> <!-- insert location description here -->
+                <td class="btns">
+                    <a href="{{ url_for('transfer', two_digits=45, _scheme='HTTP' , _external=True) }}">TransferZone45</a>
+                </td>
+            </tr>
+            <tr>
+                <td class="loc">5</td> <!-- insert location name here -->
+                <td class="desc">{{ zones['5'] }}</td> <!-- insert location description here -->
+            </tr>
+            </tbody>
+        </table>
+        <h2>Robot Action</h2>
+        <h4>Pen color: {{ color }}</h4>
+        <table>
+            <colgroup>
+                <col style="width: 20%">
+                <col style="width: 20%">
+                <col style="width: 20%">
+                <col style="width: 20%">
+                <col style="width: 20%">
+            </colgroup>
+            <tbody class="loctable">
+            <tr>
+                {% for i in range(1,6) %}
+                    <td class="btns">
+                        <a href="{{ url_for('draw', recipe=i, _scheme='HTTP' , _external=True) }}">Draw
+                            recipe {{ i }}</a>
+                    </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                {% for i in range(6,10) %}
+                    <td class="btns">
+                        <a href="{{ url_for('draw', recipe=i, _scheme='HTTP' , _external=True) }}">Draw
+                            recipe {{ i }}</a>
+                    </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="btns">
+                    <a href="{{ url_for('change_pen', new_color='RED', _scheme='HTTP' , _external=True) }}">Change
+                        RED
+                        pen</a>
+                </td>
+                <td class="btns">
+                    <a href="{{ url_for('change_pen', new_color='GREEN', _scheme='HTTP' , _external=True) }}">Change
+                        GREEN
+                        pen</a>
+                </td>
+                <td class="btns">
+                    <a href="{{ url_for('change_pen', new_color='BLUE', _scheme='HTTP' , _external=True) }}">Change
+                        BLUE
+                        pen</a>
+                </td>
+                <td>
+                    <a href="{{ url_for('calibrate', _scheme='HTTP', _external=True) }}">Calibrate</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <h2>Event Subscription</h2>
+        <a href="{{ url_for('subscribe_all', _scheme='HTTP' , _external=True) }}">Subscribe all</a>
+        <a href="{{ url_for('unsubscribe_all', _scheme='HTTP' , _external=True) }}">Unsubscribe all</a>
+        <p></p>
+        <table>
+            <tbody>
+            {% for event, state in subscription.items() %}
+                <tr>
+                    <td>{{ event }}</td>
+                    <td>{{ state }}</td>
+                    {% if event[0] == 'Z' %}
+                        <td>
+                            {% if state %}
+                                <a href='{{ url_for('unsubscribe', target='conveyor', event_id=event, _scheme='HTTP' , _external=True) }}'>Unsubscribe</a>
+                            {% else %}
+                                <a href='{{ url_for('subscribe', target='conveyor', event_id=event, _scheme='HTTP' , _external=True) }}'>Subscribe</a>
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <td>
+                            {% if state %}
+                                <a href='{{ url_for('unsubscribe', target='robot', event_id=event, _scheme='HTTP' , _external=True) }}'>Unsubscribe</a>
+                            {% else %}
+                                <a href='{{ url_for('subscribe', target='robot', event_id=event, _scheme='HTTP' , _external=True) }}'>Subscribe</a>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <h2>Event history</h2>
+        <table>
+            {% for event in history %}
+                <tr>
+                    <td>{{ event.timestamp }}</td>
+                    <td>{{ event.id }}</td>
+                    <td>{{ event.senderID }}</td>
+                    <td>{{ event.payload }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+</body>
+</html>
