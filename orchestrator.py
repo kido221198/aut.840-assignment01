@@ -118,7 +118,7 @@ class Workstation(object):
             return EXIT_FAILURE, 'Zone 3 is empty'
 
         else:
-            url = self.ip_robot + '/rest/services/Draw' + recipe
+            url = self.ip_robot + '/rest/services/Draw' + str(recipe)
             print('Sending request POST ' + url)
             result = requests.post(url, json={'destUrl': self.dest_url})
 
@@ -188,26 +188,30 @@ class Workstation(object):
                 self.zones['2'] = pallet_id
 
                 if not self.zones['3']:
-                    if self.pen_color == self.list_order[pallet_id]['f_color']:
-                        self.trans_zone('2', '3')
+                    # if self.pen_color == self.list_order[pallet_id].f_color:
+                    #     self.trans_zone('2', '3')
+                    #
+                    # else:
+                    #     self.change_pen(self.list_order[pallet_id].f_color')
 
-                    else:
-                        self.change_pen(self.list_order[pallet_id]['f_color'])
+                    self.trans_zone('2', '3')
 
         if event_id == 'Z3_Changed':
             if pallet_id == '-1':
                 self.zones['3'] = None
 
                 if self.zones['2']:
-                    if self.list_order[pallet_id]['f_color'] == self.pen_color:
-                        self.trans_zone('2', '3')
+                    # if self.list_order[pallet_id].f_color == self.pen_color:
+                    #     self.trans_zone('2', '3')
+                    #
+                    # else:
+                    #     self.change_pen(self.list_order[pallet_id].f_color)
 
-                    else:
-                        self.change_pen(self.list_order[pallet_id]['f_color'])
+                    self.trans_zone('2', '3')
 
             else:
                 self.zones['3'] = pallet_id
-                self.draw_recipe(self.list_order[pallet_id]['frame'])
+                self.draw_recipe(self.list_order[pallet_id].frame_id)
 
                 # if not self.zones['5']:
                 #     self.completed_orders.append(self.list_order[pallet_id])
@@ -232,7 +236,7 @@ class Workstation(object):
                 del self.list_order[self.zones['5']]
                 self.zones['5'] = None
 
-                # if self.list_order[self.zones['3']]['complete'] == 6:
+                # if self.list_order[self.zones['3']].complete == 6:
                 #     self.trans_zone('3', '5')
 
                 if self.zones['3'] and not self.list_order[self.zones['3']]:
@@ -249,15 +253,15 @@ class Workstation(object):
             if self.zones['2'] and not self.zones['3']:
                 self.trans_zone('2', '3')
 
-        elif event_id == 'DrawExecutionEnded':
+        elif event_id == 'DrawEndExecution':
             pallet_id = self.zones['3']
-            self.list_order[pallet_id]['complete'] += 1
+            self.list_order[pallet_id].complete += 1
 
-            if self.list_order[pallet_id]['complete'] == 1:
-                self.draw_recipe(self.list_order[pallet_id]['screen'])
+            if self.list_order[pallet_id].complete == 1:
+                self.draw_recipe(self.list_order[pallet_id].screen_id)
 
-            elif self.list_order[pallet_id]['complete'] == 2:
-                self.draw_recipe(self.list_order[pallet_id]['keyboard'])
+            elif self.list_order[pallet_id].complete == 2:
+                self.draw_recipe(self.list_order[pallet_id].keyboard_id)
 
             else:
                 if not self.zones['5']:
@@ -271,9 +275,9 @@ class Workstation(object):
             print('Received event:', json_data)
             self.history.insert(0, json_data)
             event_id = json_data['id']
-            pallet_id = json_data['payload']['PalletID']
 
             if event_id[0] == 'Z':
+                pallet_id = json_data['payload']['PalletID']
                 self.conveyor_event_handler(event_id, pallet_id)
 
             else:

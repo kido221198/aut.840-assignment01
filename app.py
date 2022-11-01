@@ -7,7 +7,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'FAST-Lab'
 
 ws_id = '9'
-dest_url = '192.168.0.61:5000/events'
+dest_url = '192.168.0.60:5000/events'
 ip_conveyor = '192.168.' + ws_id + '.2'
 ip_robot = '192.168.' + ws_id + '.1'
 
