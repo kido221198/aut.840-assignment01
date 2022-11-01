@@ -6,7 +6,7 @@ from forms import DrawingForm
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'FAST-Lab'
 
-ws_id = '10'
+ws_id = '12'
 dest_url = '192.168.0.62:5000/events'
 ip_conveyor = '192.168.' + ws_id + '.2'
 ip_robot = '192.168.' + ws_id + '.1'

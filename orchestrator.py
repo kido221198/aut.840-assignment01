@@ -270,9 +270,10 @@ class Workstation(object):
                 self.draw_recipe(self.list_order[pallet_id].keyboard_id)
 
             else:
+                self.completed_orders.append(self.list_order[pallet_id])
+                self.list_order.pop(pallet_id)
+
                 if not self.zones['5']:
-                    self.completed_orders.append(self.list_order[pallet_id])
-                    self.list_order.pop(pallet_id)
                     self.trans_zone('3', '5')
 
     def event_handler(self, json_data):
