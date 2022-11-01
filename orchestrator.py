@@ -1,4 +1,5 @@
 import requests
+import time
 import json
 from datetime import datetime
 import random
@@ -29,6 +30,8 @@ class Workstation(object):
         self.list_order = {}
         self.pending_orders = []
         self.completed_orders = []
+
+        self.unsubscribe_all()
         self.subscribe_all()
 
     def calibrate(self):
@@ -162,11 +165,13 @@ class Workstation(object):
                 frame = order['frame_id']
                 screen = order['screen_id']
                 keyboard = order['keyboard_id']
-                f_color = order['f_color']
-                s_color = order['s_color']
-                k_color = order['k_color']
-                self.list_order[pallet_id] = Pallet(frame, screen, keyboard, f_color, s_color, k_color)
+                # f_color = order['f_color']
+                # s_color = order['s_color']
+                # k_color = order['k_color']
+                # self.list_order[pallet_id] = Pallet(frame, screen, keyboard, f_color, s_color, k_color)
 
+                color = order['color']
+                self.list_order[pallet_id] = Pallet(frame, screen, keyboard, color)
                 if not self.zones['2']:
                     self.trans_zone('1', '2')
 
@@ -188,11 +193,11 @@ class Workstation(object):
                 self.zones['2'] = pallet_id
 
                 if not self.zones['3']:
-                    # if self.pen_color == self.list_order[pallet_id].f_color:
+                    # if self.pen_color == self.list_order[pallet_id].color:
                     #     self.trans_zone('2', '3')
                     #
                     # else:
-                    #     self.change_pen(self.list_order[pallet_id].f_color')
+                    #     self.change_pen(self.list_order[pallet_id].color')
 
                     self.trans_zone('2', '3')
 
@@ -201,11 +206,11 @@ class Workstation(object):
                 self.zones['3'] = None
 
                 if self.zones['2']:
-                    # if self.list_order[pallet_id].f_color == self.pen_color:
+                    # if self.list_order[pallet_id].color == self.pen_color:
                     #     self.trans_zone('2', '3')
                     #
                     # else:
-                    #     self.change_pen(self.list_order[pallet_id].f_color)
+                    #     self.change_pen(self.list_order[pallet_id].color)
 
                     self.trans_zone('2', '3')
 
@@ -256,6 +261,7 @@ class Workstation(object):
         elif event_id == 'DrawEndExecution':
             pallet_id = self.zones['3']
             self.list_order[pallet_id].complete += 1
+            time.sleep(1)
 
             if self.list_order[pallet_id].complete == 1:
                 self.draw_recipe(self.list_order[pallet_id].screen_id)
@@ -359,9 +365,11 @@ class Workstation(object):
 
         return EXIT_SUCCESS, 'Unsubscribed all events'
 
-    def new_order(self, frame, screen, keyboard, f_color, s_color, k_color):
+    # def new_order(self, frame, screen, keyboard, f_color, s_color, k_color):
+    def new_order(self, frame, screen, keyboard, color):
         if self.zones['1'] and not self.list_order[self.zones['1']]:
-            self.list_order[self.zones['1']] = Pallet(frame, screen, keyboard, f_color, s_color, k_color)
+            # self.list_order[self.zones['1']] = Pallet(frame, screen, keyboard, f_color, s_color, k_color)
+            self.list_order[self.zones['1']] = Pallet(frame, screen, keyboard, color)
 
             if not self.zones['2']:
                 self.trans_zone('1', '2')
@@ -372,8 +380,9 @@ class Workstation(object):
                 return EXIT_SUCCESS, 'New order has been made, transferring a pallet from Zone 1 to Zone 4!'
 
         else:
-            self.pending_orders.append({'frame_id': frame, 'screen_id': screen, 'keyboard_id': keyboard,
-                                        'f_color': f_color, 's_color': s_color, 'k_color': k_color})
+            # self.pending_orders.append({'frame_id': frame, 'screen_id': screen, 'keyboard_id': keyboard,
+            #                             'f_color': f_color, 's_color': s_color, 'k_color': k_color})
+            self.pending_orders.append({'frame_id': frame, 'screen_id': screen, 'keyboard_id': keyboard, 'color': color})
             return EXIT_SUCCESS, 'New order has been made and added to the pending list!'
 
     def random_order(self):
@@ -386,24 +395,25 @@ class Workstation(object):
         # Workstation currently cannot change pen when pallet at zone 3 presents
         color = color_set[random.randint(0, 2)]
 
-        f_color = color
-        s_color = color
-        k_color = color
-
         # f_color = color_set[random.randint(0, 2)]
         # s_color = color_set[random.randint(0, 2)]
         # k_color = color_set[random.randint(0, 2)]
-        self.new_order(frame, screen, keyboard, f_color, s_color, k_color)
+        # self.new_order(frame, screen, keyboard, f_color, s_color, k_color)
+
+        self.new_order(frame, screen, keyboard, color)
         print('New random order has been made!')
         return EXIT_SUCCESS, 'New random order has been made!'
 
 
 class Pallet(object):
-    def __init__(self, frame, screen, keyboard, f_color, s_color, k_color):
+    # def __init__(self, frame, screen, keyboard, f_color, s_color, k_color):
+    def __init__(self, frame, screen, keyboard, color):
         self.frame_id = int(frame)
         self.screen_id = int(screen) + 6
         self.keyboard_id = int(keyboard) + 3
-        self.f_color = f_color
-        self.s_color = s_color
-        self.k_color = k_color
+        # self.f_color = f_color
+        # self.s_color = s_color
+        # self.k_color = k_color
+        self.color = color
         self.complete = 0
+        print('New object created!')

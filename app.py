@@ -6,8 +6,8 @@ from forms import DrawingForm
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'FAST-Lab'
 
-ws_id = '9'
-dest_url = '192.168.0.60:5000/events'
+ws_id = '10'
+dest_url = '192.168.0.62:5000/events'
 ip_conveyor = '192.168.' + ws_id + '.2'
 ip_robot = '192.168.' + ws_id + '.1'
 
@@ -23,15 +23,14 @@ def index():  # put application's code here
         frame = drawing_form.frame.data
         screen = drawing_form.screen.data
         keyboard = drawing_form.keyboard.data
-        f_color = drawing_form.f_color.data
-        s_color = drawing_form.s_color.data
-        k_color = drawing_form.k_color.data
-        print(frame, screen, keyboard)
+        # f_color = drawing_form.f_color.data
+        # s_color = drawing_form.s_color.data
+        # k_color = drawing_form.k_color.data
+        color = drawing_form.color.data
+        print(frame, screen, keyboard, color)
         return redirect(url_for('new_order',
-                                frame=frame, f_color=f_color,
-                                screen=screen, s_color=s_color,
-                                keyboard=keyboard,  k_color=k_color,
-                                _scheme='HTTP', _external=True))
+                                frame=frame, screen=screen, keyboard=keyboard,
+                                color=color, _scheme='HTTP', _external=True))
 
     return render_template("orchestrator.html",
                            form=drawing_form,
@@ -119,9 +118,15 @@ def event():
     return json
 
 
-@app.route('/new_order/<frame>/<f_color>/<screen>/<s_color>/<keyboard>/<k_color>')
-def new_order(frame, f_color, screen, s_color, keyboard, k_color):
-    my_workstation.new_order(frame, screen, keyboard, f_color, s_color, k_color)
+# @app.route('/new_order/<frame>/<f_color>/<screen>/<s_color>/<keyboard>/<k_color>')
+# def new_order(frame, f_color, screen, s_color, keyboard, k_color):
+#     my_workstation.new_order(frame, screen, keyboard, f_color, s_color, k_color)
+#     return redirect(url_for('index', _scheme='HTTP', _external=True))
+
+
+@app.route('/new_order/<frame>/<screen>/<keyboard>/<color>')
+def new_order(frame, screen, keyboard, color):
+    my_workstation.new_order(frame, screen, keyboard, color)
     return redirect(url_for('index', _scheme='HTTP', _external=True))
 
 

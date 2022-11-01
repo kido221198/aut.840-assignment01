@@ -31,7 +31,7 @@
         }
 
         .row {
-            background-image: url("tampere_symbol.png");
+            background-image: url("./tampere_symbol.png");
             background-color: #ffffff;
             height: 500px;
             background-position: center center;
@@ -44,7 +44,7 @@
             text-align: center;
         }
 
-        h3{
+        h3 {
             text-align: center;
         }
 
@@ -60,17 +60,19 @@
         <form action="/" method="POST">
             {{ form.hidden_tag() }}
             <table>
+                <colgroup>
+                    <col style="width: 25%">
+                    <col style="width: 5%">
+                    <col style="width: 20%">
+                    <col style="width: 5%">
+                    <col style="width: 20%">
+                    <col style="width: 5%">
+                    <col style="width: 20%">
+                </colgroup>
                 <tbody>
                 <tr>
                     <td>{{ form.frame.label }}</td>
                     {% for btn in form.frame %}
-                        <td>{{ btn }}</td>
-                        <td>{{ btn.label }}</td>
-                    {% endfor %}
-                </tr>
-                <tr>
-                    <td>{{ form.f_color.label }}</td>
-                    {% for btn in form.f_color %}
                         <td>{{ btn }}</td>
                         <td>{{ btn.label }}</td>
                     {% endfor %}
@@ -83,13 +85,6 @@
                     {% endfor %}
                 </tr>
                 <tr>
-                    <td>{{ form.s_color.label }}</td>
-                    {% for btn in form.s_color %}
-                        <td>{{ btn }}</td>
-                        <td>{{ btn.label }}</td>
-                    {% endfor %}
-                </tr>
-                <tr>
                     <td>{{ form.keyboard.label }}</td>
                     {% for btn in form.keyboard %}
                         <td>{{ btn }}</td>
@@ -97,8 +92,8 @@
                     {% endfor %}
                 </tr>
                 <tr>
-                    <td>{{ form.k_color.label }}</td>
-                    {% for btn in form.k_color %}
+                    <td>{{ form.color.label }}</td>
+                    {% for btn in form.color %}
                         <td>{{ btn }}</td>
                         <td>{{ btn.label }}</td>
                     {% endfor %}
@@ -112,24 +107,27 @@
 
         <h2>Order History</h2>
         <table>
+            <colgroup>
+                <col style="width: 15%">
+                <col style="width: 15%">
+                <col style="width: 15%">
+                <col style="width: 25%">
+                <col style="width: 30%">
+            </colgroup>
             <tbody>
             <tr>
                 <td>Frame shape</td>
-                <td>Frame color</td>
                 <td>Screen shape</td>
-                <td>Screen color</td>
                 <td>Keyboard shape</td>
-                <td>Keyboard color</td>
+                <td>Color</td>
                 <td>Status</td>
             </tr>
             {% for order in completed_orders %}
                 <tr>
                     <td>{{ order['frame_id']|int }}</td>
-                    <td>{{ order['f_color'] }}</td>
                     <td>{{ order['screen_id']|int }}</td>
-                    <td>{{ order['s_color'] }}</td>
                     <td>{{ order['keyboard_id']|int }}</td>
-                    <td>{{ order['k_color'] }}</td>
+                    <td>{{ order['color'] }}</td>
                     <td>Completed</td>
                 </tr>
             {% endfor %}
@@ -137,11 +135,9 @@
                 <tr>
                     {% if order %}
                         <td>{{ order['frame_id']|int }}</td>
-                        <td>{{ order['f_color'] }}</td>
                         <td>{{ order['screen_id']|int }}</td>
-                        <td>{{ order['s_color'] }}</td>
                         <td>{{ order['keyboard_id']|int }}</td>
-                        <td>{{ order['k_color'] }}</td>
+                        <td>{{ order['color'] }}</td>
                         {% if order['complete'] > 0 %}
                             <td>Drawing</td>
                         {% else %}
@@ -153,11 +149,9 @@
             {% for order in pending_orders %}
                 <tr>
                     <td>{{ order['frame_id']|int }}</td>
-                    <td>{{ order['f_color'] }}</td>
-                    <td>{{ order['screen_id']|int }}</td>
-                    <td>{{ order['s_color'] }}</td>
-                    <td>{{ order['keyboard_id']|int }}</td>
-                    <td>{{ order['k_color'] }}</td>
+                    <td>{{ order['screen_id']|int + 6 }}</td>
+                    <td>{{ order['keyboard_id']|int + 3 }}</td>
+                    <td>{{ order['color'] }}</td>
                     <td>Pending</td>
                 </tr>
             {% endfor %}
@@ -171,9 +165,9 @@
         <table>
             <colgroup>
                 <col style="width: 5%">
-                <col style="width: 45%">
-                <col style="width: 25%">
-                <col style="width: 25%">
+                <col style="width: 40%">
+                <col style="width: 22.5%">
+                <col style="width: 22.5%">
             </colgroup>
             <tbody class="loctable">
             <tr>
